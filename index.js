@@ -64,7 +64,7 @@ async function run() {
   //product api
   app.post('/all-classes', async (req, res) => {
     const classes = req.body
-    const result = await productCollection.insertOne(classes)
+    const result = await productCollection.insertOne(products)
     res.send(result)
   })
   app.post('/selected-class', async (req, res) => {
@@ -210,12 +210,6 @@ async function run() {
     res.send(result)
   })
   
-  app.get('/popular-instructors', async (req, res) => {
-    const query = { role: 'instructor' }
-    const result = await userCollection.find(query).toArray()
-    res.send(result)
-  })
-
    //payment api
    app.post("/create-payment-intent", async (req, res) => {
     const { price } = req.body;
