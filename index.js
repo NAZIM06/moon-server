@@ -29,7 +29,14 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // awaitclient.connect();
 
-   
+   // db and Collection
+   const userCollection = client.db('GemArk').collection('users')
+   const classCollection = client.db('GemArk').collection('products')
+   const selectedClassCollection = client.db('GemArk').collection('myCart')
+   const enrolledClassCollection = client.db('GemArk').collection('myProduct')
+   const paymentCollection = client.db('GemArk').collection('payment')
+
+
 
     // -----END-----
 
