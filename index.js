@@ -170,12 +170,7 @@ async function run() {
     const admin = await userCollection.findOne(query)
     res.send(admin)
   })
-  app.get('/user/instructor/:email', verifyJWT, async (req, res) => {
-    const email = req.params.email;
-    const query = { email: email, role: 'instructor' }
-    const instructor = await userCollection.findOne(query)
-    res.send(instructor)
-  })
+
   app.get('/user/student/:email', verifyJWT, async (req, res) => {
     const email = req.params.email;
     const query = { email: email, role: 'student' }
@@ -190,11 +185,6 @@ async function run() {
   })
   app.get('/all-users', verifyJWT, async (req, res) => {
     const result = await userCollection.find().toArray()
-    res.send(result)
-  })
-  app.get('/all-instructors', async (req, res) => {
-    const query = { role: 'instructor' }
-    const result = await userCollection.find(query).toArray()
     res.send(result)
   })
   app.put('/all-users/:id', verifyJWT, async (req, res) => {
