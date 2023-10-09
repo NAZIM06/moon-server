@@ -48,9 +48,9 @@ async function run() {
 
    // db and Collection
    const userCollection = client.db('GemArk').collection('users')
-   const classCollection = client.db('GemArk').collection('products')
-   const selectedClassCollection = client.db('GemArk').collection('myCart')
-   const enrolledClassCollection = client.db('GemArk').collection('myProduct')
+   const productCollection = client.db('GemArk').collection('products')
+   const selectedProductCollection = client.db('GemArk').collection('myCart')
+   const myProductCollection = client.db('GemArk').collection('myProduct')
    const paymentCollection = client.db('GemArk').collection('payment')
 
    // JWT
@@ -61,48 +61,48 @@ async function run() {
   })
 
 
-  //classes api
+  //product api
   app.post('/all-classes', async (req, res) => {
     const classes = req.body
-    const result = await classCollection.insertOne(classes)
+    const result = await productCollection.insertOne(classes)
     res.send(result)
   })
   app.post('/selected-class', async (req, res) => {
     const selectedClass = req.body;
-    const result = await selectedClassCollection.insertOne(selectedClass)
+    const result = await selectedProductCollection.insertOne(selectedClass)
     res.send(result)
   })
   app.get('/selected-classes', verifyJWT, async (req, res) => {
     const email = req.query.email;
     const query = { studentEmail: email }
-    const result = await selectedClassCollection.find(query).toArray()
+    const result = await selectedProductCollection.find(query).toArray()
     res.send(result)
   })
   app.get('/selected-class/:id', async (req, res) => {
     const id = req.params.id;
     const query = { _id: new ObjectId(id) }
-    const result = await selectedClassCollection.findOne(query)
+    const result = await selectedProductCollection.findOne(query)
     res.send(result)
   })
   app.delete('/selected-classes/:id', verifyJWT, async (req, res) => {
     const id = req.params.id;
     const query = { _id: new ObjectId(id) }
-    const result = await selectedClassCollection.deleteOne(query)
+    const result = await selectedProductCollection.deleteOne(query)
     res.send(result)
   })
   app.get('/approved-all-classes', async (req, res) => {
     const query = { status: 'Approved' } //only shows the approved classes
-    const result = await classCollection.find(query).toArray()
+    const result = await productCollection.find(query).toArray()
     res.send(result)
   })
   app.get('/all-classes',verifyJWT,  async (req, res) => {
-    const result = await classCollection.find().sort({date : -1}).toArray()
+    const result = await productCollection.find().sort({date : -1}).toArray()
     res.send(result)
 })
   app.get('/all-classes/:email', verifyJWT, async (req, res) => {
     const email = req.params.email;
     const query = { instructorEmail: email }
-    const result = await classCollection.find(query).toArray()
+    const result = await productCollection.find(query).toArray()
     res.send(result)
   })
   app.put('/all-classes/:id', async (req, res) => {
@@ -116,7 +116,7 @@ async function run() {
           status: 'Approved'
         }
       }
-      const result = await classCollection.updateOne(query, updatedDoc)
+      const result = await productCollection.updateOne(query, updatedDoc)
       res.send(result)
     }
     if (status == 'denied') {
@@ -126,7 +126,7 @@ async function run() {
           status: 'Denied'
         }
       }
-      const result = await classCollection.updateOne(query, updatedDoc)
+      const result = await productCollection.updateOne(query, updatedDoc)
       res.send(result)
     }
     if (feedback) {
@@ -136,19 +136,19 @@ async function run() {
           feedback: feedback
         }
       }
-      const result = await classCollection.updateOne(query, updatedDoc)
+      const result = await productCollection.updateOne(query, updatedDoc)
       res.send(result)
     }
   })
   app.get('/popular-classes', async (req, res) => {
     const query = { status: 'Approved' }
-    const result = await classCollection.find(query).sort({ enrolledStudents: -1 }).toArray()
+    const result = await productCollection.find(query).sort({ enrolledStudents: -1 }).toArray()
     res.send(result)
   })
   app.get('/enrolled-classes/:email', verifyJWT, async (req, res) => {
     const email = req.params.email
     const query = { studentEmail: email }
-    const result = await enrolledClassCollection.find(query).toArray()
+    const result = await myProductCollection.find(query).toArray()
     res.send(result)
   })
 
@@ -244,18 +244,18 @@ app.post('/payment',verifyJWT, async (req, res) => {
     const insertResult = await paymentCollection.insertOne(payment);
 
     const enrolledQuery = { studentEmail: payment.email, classId: payment.classId }
-    const enrolledClass =  await selectedClassCollection.findOne(enrolledQuery)
-    const enrolledInsertResult = await enrolledClassCollection.insertOne(enrolledClass)
+    const enrolledClass =  await selectedProductCollection.findOne(enrolledQuery)
+    const enrolledInsertResult = await myProductCollection.insertOne(enrolledClass)
 
-    const enrolledDeleteResult = await selectedClassCollection.deleteOne(enrolledQuery)
+    const enrolledDeleteResult = await selectedProductCollection.deleteOne(enrolledQuery)
 
     const classQuery = { _id: new ObjectId(payment.classId) };
-    const classDocument = await classCollection.findOne(classQuery); // Fetch the latest document
+    const classDocument = await productCollection.findOne(classQuery); // Fetch the latest document
 
     if (classDocument && classDocument.seats > 0) {
         const updatedSeats = classDocument.seats - 1;
         const updateEnrolledStudents = classDocument.enrolledStudents + 1;
-        const updateResult = await classCollection.updateOne(
+        const updateResult = await productCollection.updateOne(
             classQuery,
             { $set: { seats: updatedSeats, enrolledStudents : updateEnrolledStudents } }
         );
