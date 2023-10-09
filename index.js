@@ -13,22 +13,7 @@ app.use(express.static("public"))
 app.use(express.json())
 
 
-const verifyJWT = (req, res, next) => {
-  const authorization = req.headers.authorization;
-  if (!authorization) {
-    return res.status(401).send({ error: true, message: 'Unauthorize Access' })
-  }
-  const token = authorization.split(' ')[1];
 
-  jwt.verify(token, process.env.JWT_ACCESS_TOKEN, (error, decoded) => {
-    if (error) {
-      console.log(error)
-      return res.send({ error: true, message: 'Unauthorize Access' })
-    }
-    req.decoded = decoded;
-    next()
-  })
-}
 
 // uri
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.zmpua4z.mongodb.net/?retryWrites=true&w=majority`;
